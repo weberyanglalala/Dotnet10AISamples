@@ -132,7 +132,7 @@
 - [ ] 執行遷移以建立/更新資料庫
 
 ### 第二階段：DTOs 與驗證
-- [ ] 建立 `{EntityName}Dto`（回應 DTO，支援 HATEOAS）
+- [ ] 建立 `{EntityName}Dto`（回應 DTO）
 - [ ] 建立 `Create{EntityName}Dto`（用於 POST 請求）
 - [ ] 建立 `Update{EntityName}Dto`（用於 PUT/PATCH 請求）
 - [ ] 建立 `{EntityName}QueryParameters`（用於 GET 列表篩選）
@@ -176,7 +176,6 @@
     - [ ] `POST /{resource-path}` - 建立新的
     - [ ] `PUT/PATCH /{resource-path}/{id}` - 更新
     - [ ] `DELETE /{resource-path}/{id}` - 刪除（如適用）
-- [ ] 新增 HATEOAS 連結產生
 - [ ] 新增欄位選擇支援
 - [ ] 新增授權屬性
 - [ ] 新增 FluentValidation 整合
@@ -193,7 +192,6 @@
 - [ ] 新增請求/回應範例
 - [ ] 包含 cURL 範例
 - [ ] 為複雜操作新增 Mermaid 流程圖
-- [ ] 新增 HATEOAS 格式範例
 - [ ] 包含驗證規則和業務規則文件
 
 ### 第八階段：測試（如有需要）
@@ -201,7 +199,6 @@
 - [ ] 測試不同角色的授權
 - [ ] 測試驗證規則
 - [ ] 測試業務邏輯邊界情況
-- [ ] 測試 HATEOAS 連結產生
 - [ ] 測試欄位選擇
 - [ ] 測試分頁和排序
 
