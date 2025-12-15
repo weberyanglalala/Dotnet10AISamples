@@ -1,0 +1,7 @@
+﻿services:
+  dotnet10aisamples.api:
+    image: dotnet10aisamples.api
+    build:
+      context: .
+      dockerfile: Dotnet10AISamples.Api/Dockerfile
+
