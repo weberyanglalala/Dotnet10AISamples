@@ -3,10 +3,19 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Dotnet10AISamples.Api.Middlewares;
 
-public sealed class GlobalExceptionHandler(IProblemDetailsService problemDetailsService) : IExceptionHandler
+public sealed class GlobalExceptionHandler(
+    IProblemDetailsService problemDetailsService,
+    ILogger<GlobalExceptionHandler> logger) : IExceptionHandler
 {
-    public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
+    public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception,
+        CancellationToken cancellationToken)
     {
+        logger.LogError(
+            exception,
+            "Unhandled exception while processing {Method} {Path}. TraceId: {TraceId}",
+            httpContext.Request?.Method,
+            httpContext.Request?.Path.Value,
+            httpContext.TraceIdentifier);
         return await problemDetailsService.TryWriteAsync(new ProblemDetailsContext()
         {
             HttpContext = httpContext,
