@@ -6,32 +6,27 @@ using Dotnet10AGUI.Api.AgenticUI;
 using Dotnet10AGUI.Api.BackendToolRendering;
 using Dotnet10AGUI.Api.PredictiveStateUpdates;
 using Dotnet10AGUI.Api.SharedState;
-using Azure.AI.OpenAI;
-using Azure.Identity;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
+using OpenAI;
 using ChatClient = OpenAI.Chat.ChatClient;
 
 namespace Dotnet10AGUI.Api;
 
 internal static class ChatClientAgentFactory
 {
-    private static AzureOpenAIClient _azureOpenAiClient;
-    private static string _deploymentName;
+    private static OpenAIClient _openAiClient;
+    private static string _modelName;
 
     public static void Initialize(IConfiguration configuration)
     {
-        string endpoint = configuration["AZURE_OPENAI_ENDPOINT"] ?? throw new InvalidOperationException("AZURE_OPENAI_ENDPOINT is not set.");
-        _deploymentName = configuration["AZURE_OPENAI_DEPLOYMENT_NAME"] ?? throw new InvalidOperationException("AZURE_OPENAI_DEPLOYMENT_NAME is not set.");
-
-        _azureOpenAiClient = new AzureOpenAIClient(
-            new Uri(endpoint),
-            new DefaultAzureCredential());
+        _openAiClient = new OpenAIClient(configuration["OpenAiApiKey"]);
+        _modelName = "gpt-5.1";
     }
 
     public static ChatClientAgent CreateAgenticChat()
     {
-        ChatClient chatClient = _azureOpenAiClient.GetChatClient(_deploymentName!);
+        ChatClient chatClient = _openAiClient.GetChatClient(_modelName);
 
         return chatClient.AsIChatClient().CreateAIAgent(
             name: "AgenticChat",
@@ -40,7 +35,7 @@ internal static class ChatClientAgentFactory
 
     public static ChatClientAgent CreateBackendToolRendering()
     {
-        ChatClient chatClient = _azureOpenAiClient.GetChatClient(_deploymentName!);
+        ChatClient chatClient = _openAiClient.GetChatClient(_modelName);
 
         return chatClient.AsIChatClient().CreateAIAgent(
             name: "BackendToolRenderer",
@@ -54,7 +49,7 @@ internal static class ChatClientAgentFactory
 
     public static ChatClientAgent CreateHumanInTheLoop()
     {
-        ChatClient chatClient = _azureOpenAiClient!.GetChatClient(_deploymentName!);
+        ChatClient chatClient = _openAiClient.GetChatClient(_modelName);
 
         return chatClient.AsIChatClient().CreateAIAgent(
             name: "HumanInTheLoopAgent",
@@ -63,7 +58,7 @@ internal static class ChatClientAgentFactory
 
     public static ChatClientAgent CreateToolBasedGenerativeUI()
     {
-        ChatClient chatClient = _azureOpenAiClient!.GetChatClient(_deploymentName!);
+        ChatClient chatClient = _openAiClient.GetChatClient(_modelName);
 
         return chatClient.AsIChatClient().CreateAIAgent(
             name: "ToolBasedGenerativeUIAgent",
@@ -72,7 +67,7 @@ internal static class ChatClientAgentFactory
 
     public static AIAgent CreateAgenticUI(JsonSerializerOptions options)
     {
-        ChatClient chatClient = _azureOpenAiClient!.GetChatClient(_deploymentName!);
+        ChatClient chatClient = _openAiClient.GetChatClient(_modelName);
         var baseAgent = chatClient.AsIChatClient().CreateAIAgent(new ChatClientAgentOptions
         {
             Name = "AgenticUIAgent",
@@ -114,7 +109,7 @@ internal static class ChatClientAgentFactory
 
     public static AIAgent CreateSharedState(JsonSerializerOptions options)
     {
-        ChatClient chatClient = _azureOpenAiClient!.GetChatClient(_deploymentName!);
+        ChatClient chatClient = _openAiClient.GetChatClient(_modelName);
 
         var baseAgent = chatClient.AsIChatClient().CreateAIAgent(
             name: "SharedStateAgent",
@@ -125,7 +120,7 @@ internal static class ChatClientAgentFactory
 
     public static AIAgent CreatePredictiveStateUpdates(JsonSerializerOptions options)
     {
-        ChatClient chatClient = _azureOpenAiClient!.GetChatClient(_deploymentName!);
+        ChatClient chatClient = _openAiClient.GetChatClient(_modelName);
 
         var baseAgent = chatClient.AsIChatClient().CreateAIAgent(new ChatClientAgentOptions
         {
