@@ -5,3 +5,15 @@
       context: .
       dockerfile: Dotnet10AISamples.Api/Dockerfile
 
+  dotnet10agui.api:
+    image: dotnet10agui.api
+    build:
+      context: .
+      dockerfile: Dotnet10AGUI.Api/Dockerfile
+
+  webapplication1:
+    image: webapplication1
+    build:
+      context: .
+      dockerfile: WebApplication1/Dockerfile
+
