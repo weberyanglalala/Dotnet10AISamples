@@ -206,7 +206,7 @@
 - [x] 更新現有 `CreateUserDto` 包含密碼欄位
 - [x] 建立 `AssignRoleDtoValidator`
 
-### 第四階段：認證與角色服務
+### 第四階段：認證與角色服務與資料存取
 
 - [x] 建立 `IAuthService` 介面
 - [x] 實作 `AuthService`，包含：
@@ -214,13 +214,15 @@
   - [x] `GenerateJwtToken(User user)` - 產生 JWT token（包含角色宣告）
   - [x] `GetCurrentUserAsync()` - 從 JWT 取得目前使用者
   - [x] 密碼雜湊處理（使用 BCrypt 或 ASP.NET Core Identity）
+- [x] 建立 `IRoleRepository` 介面 - 角色資料存取層
+- [x] 實作 `RoleRepository`，包含資料存取方法
 - [x] 建立 `IRoleService` 介面
 - [x] 實作 `RoleService`，包含：
   - [x] `GetUserRolesAsync(string userId)` - 取得使用者角色
   - [x] `AssignRoleToUserAsync(string userId, string roleId, string assignedBy)` - 指派角色
   - [x] `RemoveRoleFromUserAsync(string userId, string roleId)` - 移除角色
   - [x] `GetAllRolesAsync()` - 取得所有可用角色
-- [x] 在 `DependencyInjection.cs` 中註冊服務
+- [x] 在 `Program.cs` 中註冊服務和資料存取層
 
 ### 第五階段：認證與角色控制器
 
@@ -346,6 +348,8 @@
 - `AssignRoleDtoValidator.cs` - 指派角色驗證器
 - `IAuthService.cs` - 認證服務介面
 - `AuthService.cs` - 認證服務實作
+- `IRoleRepository.cs` - 角色資料存取介面
+- `RoleRepository.cs` - 角色資料存取實作
 - `IRoleService.cs` - 角色服務介面
 - `RoleService.cs` - 角色服務實作
 - `AuthController.cs` - 認證控制器
@@ -354,7 +358,7 @@
 #### 修改檔案：
 
 - `appsettings.json` - 新增 JWT 組態區段
-- `Program.cs` - 新增 JWT 認證和授權設定
+- `Program.cs` - 新增 JWT 認證和授權設定，註冊服務和資料存取層
 - `User.cs` - 新增 Email 和 PasswordHash 屬性
 - `CreateUserDto.cs` - 新增 Password 欄位
 - `ApplicationDbContext.cs` - 新增 Role 和 UserRole DbSet，設定關聯

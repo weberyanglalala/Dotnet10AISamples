@@ -55,6 +55,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 // Add repositories
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 
 // Add services
 builder.Services.AddScoped<IUserService, UserService>();

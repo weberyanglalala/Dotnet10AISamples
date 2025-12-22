@@ -1,7 +1,6 @@
 using Dotnet10AISamples.Api.Common;
-using Dotnet10AISamples.Api.Data;
 using Dotnet10AISamples.Api.Entities;
-using Microsoft.EntityFrameworkCore;
+using Dotnet10AISamples.Api.Repositories;
 
 namespace Dotnet10AISamples.Api.Services;
 
@@ -10,23 +9,18 @@ namespace Dotnet10AISamples.Api.Services;
 /// </summary>
 public class RoleService : IRoleService
 {
-    private readonly ApplicationDbContext _context;
+    private readonly IRoleRepository _roleRepository;
 
-    public RoleService(ApplicationDbContext context)
+    public RoleService(IRoleRepository roleRepository)
     {
-        _context = context;
+        _roleRepository = roleRepository;
     }
 
     public async Task<OperationResult<List<Role>>> GetUserRolesAsync(string userId)
     {
         try
         {
-            var roles = await _context.UserRoles
-                .Where(ur => ur.UserId == userId)
-                .Include(ur => ur.Role)
-                .Select(ur => ur.Role)
-                .ToListAsync();
-
+            var roles = await _roleRepository.GetUserRolesAsync(userId);
             return OperationResult<List<Role>>.Success(roles);
         }
         catch (Exception ex)
@@ -40,41 +34,27 @@ public class RoleService : IRoleService
         try
         {
             // 檢查使用者是否存在
-            var user = await _context.Users.FindAsync(userId);
-            if (user == null)
+            if (!await _roleRepository.UserExistsAsync(userId))
             {
                 return OperationResult<bool>.Failure("使用者不存在", 404);
             }
 
             // 檢查角色是否存在
-            var role = await _context.Roles.FindAsync(roleId);
-            if (role == null)
+            if (!await _roleRepository.RoleExistsAsync(roleId))
             {
                 return OperationResult<bool>.Failure("角色不存在", 404);
             }
 
             // 檢查是否已經有此角色
-            var existingRole = await _context.UserRoles
-                .FirstOrDefaultAsync(ur => ur.UserId == userId && ur.RoleId == roleId);
-
-            if (existingRole != null)
+            if (await _roleRepository.UserHasRoleAsync(userId, roleId))
             {
                 return OperationResult<bool>.Failure("使用者已經有此角色", 409);
             }
 
-            // 建立新的使用者角色關聯
-            var userRole = new UserRole
-            {
-                UserId = userId,
-                RoleId = roleId,
-                AssignedAt = DateTime.UtcNow,
-                AssignedBy = assignedBy
-            };
+            // 指派角色
+            var result = await _roleRepository.AssignRoleToUserAsync(userId, roleId, assignedBy);
 
-            _context.UserRoles.Add(userRole);
-            await _context.SaveChangesAsync();
-
-            return OperationResult<bool>.Success(true);
+            return OperationResult<bool>.Success(result > 0);
         }
         catch (Exception ex)
         {
@@ -86,16 +66,12 @@ public class RoleService : IRoleService
     {
         try
         {
-            var userRole = await _context.UserRoles
-                .FirstOrDefaultAsync(ur => ur.UserId == userId && ur.RoleId == roleId);
+            var result = await _roleRepository.RemoveRoleFromUserAsync(userId, roleId);
 
-            if (userRole == null)
+            if (result == 0)
             {
                 return OperationResult<bool>.Failure("使用者沒有此角色", 404);
             }
-
-            _context.UserRoles.Remove(userRole);
-            await _context.SaveChangesAsync();
 
             return OperationResult<bool>.Success(true);
         }
@@ -109,10 +85,7 @@ public class RoleService : IRoleService
     {
         try
         {
-            var roles = await _context.Roles
-                .OrderBy(r => r.Name)
-                .ToListAsync();
-
+            var roles = await _roleRepository.GetAllRolesAsync();
             return OperationResult<List<Role>>.Success(roles);
         }
         catch (Exception ex)
@@ -125,8 +98,7 @@ public class RoleService : IRoleService
     {
         try
         {
-            var role = await _context.Roles
-                .FirstOrDefaultAsync(r => r.Name == roleName);
+            var role = await _roleRepository.GetRoleByNameAsync(roleName);
 
             if (role == null)
             {
