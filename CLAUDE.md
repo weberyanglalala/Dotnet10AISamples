@@ -29,29 +29,30 @@ This is a .NET 10 Minimal API project demonstrating modern ASP.NET Core patterns
 
 ### Key Patterns
 
-**Response Envelope:** All API responses use `OperationResult<T>` (in `Common/`) which provides:
+**Response Envelope:** All API responses use `ApiResponse<T>` (in `Common/`) which provides:
 
-- `IsSuccess`, `Data`, `ErrorMessage`, `Code` properties
-- Factory methods: `OperationResult<T>.Success(data)` and `OperationResult<T>.Failure(message, code)`
+- `Data`, `Message`, `Code` properties
+- Services return `OperationResult<T>` which controllers convert to `ApiResponse<T>`
 
 **Exception Handling Pipeline:** Two-tier exception handling registered via `builder.AddErrorHandling()`:
 
 1. `ValidationExceptionHandler` - catches FluentValidation exceptions, returns 400 with structured errors
 2. `GlobalExceptionHandler` - catches all unhandled exceptions, returns 500 with ProblemDetails
 
-**Error Response Pattern:** Controllers check `result.IsSuccess` and return `Problem(detail: result.ErrorMessage, statusCode: result.Code)` for failures.
+**Error Response Pattern:** Controllers check `result.IsSuccess` from services and return `Problem(detail: result.ErrorMessage, statusCode: result.Code)` for failures, or `ApiResponse<T>` for successes.
 
 ### Project Structure
 
 - `Program.cs` - Application startup, middleware pipeline, OpenAPI configuration
 - `Controllers/` - API endpoints inheriting from `ControllerBase`
 - `Middlewares/` - Exception handlers implementing `IExceptionHandler`
-- `Common/` - Shared types like `OperationResult<T>`
+- `Common/` - Shared types like `OperationResult<T>` (services) and `ApiResponse<T>` (controllers)
 - `Extensions/` - Service registration helpers (e.g., `AddErrorHandling()`)
 
 ## Coding Conventions
 
-- Controllers return `OperationResult<T>` for consistent API envelopes
+- Controllers return `ApiResponse<T>` for consistent API envelopes
+- Services return `OperationResult<T>` for internal operation results
 - Use `ValidationException` from FluentValidation for validation failures
 - PascalCase for classes/methods, camelCase for locals/parameters
 - Nullable reference types disabled project-wide

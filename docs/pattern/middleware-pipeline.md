@@ -218,9 +218,11 @@ app.MapControllers();
 2. 這樣驗證異常會被特定的處理器捕獲
 3. 其他異常才會被全域處理器處理
 
-## OperationResult 的角色
+## OperationResult 和 ApiResponse 的角色
 
-專案使用 `OperationResult<T>` 提供一致的 API 回應格式：
+專案使用 `OperationResult<T>` 作為服務層的一致回應格式，`ApiResponse<T>` 作為 API 呈現層的回應格式：
+
+### OperationResult<T> (服務層)
 
 ```csharp
 public class OperationResult<T>
@@ -228,13 +230,24 @@ public class OperationResult<T>
     public bool IsSuccess { get; }
     public T Data { get; }
     public string ErrorMessage { get; }
-    public string Code { get; }
+    public int Code { get; }
 
-    public static OperationResult<T> Success(T data, string statusCode = "200") =>
+    public static OperationResult<T> Success(T data, int statusCode = 200) =>
         new OperationResult<T>(true, data, null, statusCode);
 
-    public static OperationResult<T> Failure(string errorMessage = "Operation Failed.", string statusCode = "400") =>
+    public static OperationResult<T> Failure(string errorMessage = "Operation Failed.", int statusCode = 400) =>
         new OperationResult<T>(false, default, errorMessage, statusCode);
+}
+```
+
+### ApiResponse<T> (API 層)
+
+```csharp
+public class ApiResponse<T>
+{
+    public T Data { get; set; }
+    public string Message { get; set; }
+    public int Code { get; set; }
 }
 ```
 
@@ -242,10 +255,20 @@ public class OperationResult<T>
 
 ```csharp
 [HttpGet]
-public OperationResult<IEnumerable<WeatherForecast>> Get()
+public IActionResult Get()
 {
-    var forecasts = // 取得資料
-    return OperationResult<IEnumerable<WeatherForecast>>.Success(forecasts);
+    var result = _service.GetWeatherForecasts();
+    if (!result.IsSuccess)
+    {
+        return Problem(detail: result.ErrorMessage, statusCode: result.Code);
+    }
+
+    return Ok(new ApiResponse<IEnumerable<WeatherForecast>>
+    {
+        Data = result.Data,
+        Message = "Weather forecasts retrieved successfully",
+        Code = 200
+    });
 }
 ```
 

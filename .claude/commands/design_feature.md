@@ -68,11 +68,15 @@
 
 ```json
 {
-  "items": [...],
-  "page": 1,
-  "pageSize": 10,
-  "totalCount": 100,
-  "totalPages": 10
+  "data": {
+    "items": [...],
+    "totalCount": 100,
+    "pageNumber": 1,
+    "pageSize": 10,
+    "totalPages": 10
+  },
+  "message": "Items retrieved successfully",
+  "code": 200
 }
 ```
 ````
@@ -95,8 +99,12 @@
 
 ```json
 {
-  "id": "...",
-  ...
+  "data": {
+    "id": "...",
+    ...
+  },
+  "message": "Item retrieved successfully",
+  "code": 200
 }
 ```
 
@@ -388,11 +396,11 @@
 - 公開：無屬性
 
 ### 回應模式
-- 列表端點：`PaginationResult<T>` 包含項目、分頁中繼資料、連結
-- 單一項目：實體 DTO 包含選用連結
-- 建立：201 Created 包含 Location 標頭
-- 更新：200 OK 或 204 No Content
-- 刪除：204 No Content
+- 列表端點：`ApiResponse<PaginatedResult<T>>` 包含分頁資料、成功訊息和狀態碼
+- 單一項目：`ApiResponse<T>` 包含項目資料、成功訊息和狀態碼
+- 建立：201 Created 包含 `ApiResponse<T>` 主體和 Location 標頭
+- 更新：200 OK 包含 `ApiResponse<T>` 主體
+- 刪除：204 No Content（無回應主體）
 - 錯誤：**ProblemDetails** 使用 `Problem()` 方法，包含適當的狀態碼
 
 ## 範例：ImageModelType 設計文件

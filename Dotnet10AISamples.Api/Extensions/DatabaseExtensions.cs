@@ -1,4 +1,5 @@
 using Dotnet10AISamples.Api.Data;
+using Dotnet10AISamples.Api.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Dotnet10AISamples.Api.Extensions;

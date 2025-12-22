@@ -25,7 +25,7 @@ public class UserService : IUserService
             var result = new PaginatedResult<UserDto>
             {
                 Items = items.Select(u => u.ToDto()),
-                Page = parameters.Page,
+                PageNumber = parameters.Page,
                 PageSize = parameters.PageSize,
                 TotalCount = totalCount
             };

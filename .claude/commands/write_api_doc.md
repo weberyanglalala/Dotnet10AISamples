@@ -5,6 +5,7 @@
 ## 目的
 
 此指令用於建立完整的 API 文件，包含：
+
 - 端點說明與使用範例
 - 請求/回應格式與範例
 - cURL 範例
@@ -36,23 +37,23 @@
 
 ## 基本資訊
 
-| 項目 | 說明 |
-|------|------|
+| 項目     | 說明                   |
+| -------- | ---------------------- |
 | 基礎路徑 | `/api/{resource-path}` |
-| 授權需求 | {需要驗證/公開} |
-| 支援格式 | JSON |
+| 授權需求 | {需要驗證/公開}        |
+| 支援格式 | JSON                   |
 
 ---
 
 ## 端點列表
 
-| 方法 | 路徑 | 說明 | 授權 |
-|------|------|------|------|
-| GET | `/{resource-path}` | 取得列表 | {角色} |
-| GET | `/{resource-path}/{id}` | 取得單一項目 | {角色} |
-| POST | `/{resource-path}` | 建立新項目 | {角色} |
-| PUT | `/{resource-path}/{id}` | 更新項目 | {角色} |
-| DELETE | `/{resource-path}/{id}` | 刪除項目 | {角色} |
+| 方法   | 路徑                    | 說明         | 授權   |
+| ------ | ----------------------- | ------------ | ------ |
+| GET    | `/{resource-path}`      | 取得列表     | {角色} |
+| GET    | `/{resource-path}/{id}` | 取得單一項目 | {角色} |
+| POST   | `/{resource-path}`      | 建立新項目   | {角色} |
+| PUT    | `/{resource-path}/{id}` | 更新項目     | {角色} |
+| DELETE | `/{resource-path}/{id}` | 刪除項目     | {角色} |
 
 ---
 
@@ -64,8 +65,10 @@
 
 **端點**
 ```
+
 GET /api/{resource-path}
-```
+
+````
 
 **查詢參數**
 
@@ -79,8 +82,6 @@ GET /api/{resource-path}
 
 ```json
 {
-  "isSuccess": true,
-  "code": 200,
   "data": {
     "items": [
       {
@@ -91,14 +92,15 @@ GET /api/{resource-path}
         "updatedAt": "2025-01-01T00:00:00Z"
       }
     ],
-    "page": 1,
-    "pageSize": 10,
     "totalCount": 100,
+    "pageNumber": 1,
+    "pageSize": 10,
     "totalPages": 10
   },
-  "errorMessage": null
+  "message": "Items retrieved successfully",
+  "code": 200
 }
-```
+````
 
 **cURL 範例**
 
@@ -119,23 +121,23 @@ curl -X GET "http://localhost:5155/api/{resource-path}?{customParam}=value" \
 根據 ID 取得單一 {實體}。
 
 **端點**
+
 ```
 GET /api/{resource-path}/{id}
 ```
 
 **路徑參數**
 
-| 參數 | 類型 | 必填 | 說明 |
-|------|------|------|------|
-| id | string | 是 | {實體} 的唯一識別碼 |
+| 參數 | 類型   | 必填 | 說明                |
+| ---- | ------ | ---- | ------------------- |
+| id   | string | 是   | {實體} 的唯一識別碼 |
 
 **回應範例**
 
 成功（200 OK）：
+
 ```json
 {
-  "isSuccess": true,
-  "code": 200,
   "data": {
     "id": "xxx-guid-xxx",
     "field1": "value1",
@@ -143,17 +145,19 @@ GET /api/{resource-path}/{id}
     "createdAt": "2025-01-01T00:00:00Z",
     "updatedAt": "2025-01-01T00:00:00Z"
   },
-  "errorMessage": null
+  "message": "Item retrieved successfully",
+  "code": 200
 }
 ```
 
 找不到（404 Not Found）：
+
 ```json
 {
-  "isSuccess": false,
-  "code": 404,
-  "data": null,
-  "errorMessage": "找不到指定的 {實體}"
+  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "找不到指定的 {實體}"
 }
 ```
 
@@ -171,16 +175,17 @@ curl -X GET "http://localhost:5155/api/{resource-path}/xxx-guid-xxx" \
 建立新的 {實體}。
 
 **端點**
+
 ```
 POST /api/{resource-path}
 ```
 
 **請求主體**
 
-| 欄位 | 類型 | 必填 | 說明 | 驗證規則 |
-|------|------|------|------|----------|
-| field1 | string | 是 | {說明} | 最大 100 字元 |
-| field2 | string | 否 | {說明} | - |
+| 欄位   | 類型   | 必填 | 說明   | 驗證規則      |
+| ------ | ------ | ---- | ------ | ------------- |
+| field1 | string | 是   | {說明} | 最大 100 字元 |
+| field2 | string | 否   | {說明} | -             |
 
 **請求範例**
 
@@ -194,10 +199,9 @@ POST /api/{resource-path}
 **回應範例**
 
 成功（201 Created）：
+
 ```json
 {
-  "isSuccess": true,
-  "code": 201,
   "data": {
     "id": "xxx-guid-xxx",
     "field1": "value1",
@@ -205,11 +209,13 @@ POST /api/{resource-path}
     "createdAt": "2025-01-01T00:00:00Z",
     "updatedAt": "2025-01-01T00:00:00Z"
   },
-  "errorMessage": null
+  "message": "Item created successfully",
+  "code": 201
 }
 ```
 
 驗證失敗（400 Bad Request）：
+
 ```json
 {
   "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
@@ -240,22 +246,23 @@ curl -X POST "http://localhost:5155/api/{resource-path}" \
 更新現有的 {實體}。
 
 **端點**
+
 ```
 PUT /api/{resource-path}/{id}
 ```
 
 **路徑參數**
 
-| 參數 | 類型 | 必填 | 說明 |
-|------|------|------|------|
-| id | string | 是 | {實體} 的唯一識別碼 |
+| 參數 | 類型   | 必填 | 說明                |
+| ---- | ------ | ---- | ------------------- |
+| id   | string | 是   | {實體} 的唯一識別碼 |
 
 **請求主體**
 
-| 欄位 | 類型 | 必填 | 說明 | 驗證規則 |
-|------|------|------|------|----------|
-| field1 | string | 否 | {說明} | 最大 100 字元 |
-| field2 | string | 否 | {說明} | - |
+| 欄位   | 類型   | 必填 | 說明   | 驗證規則      |
+| ------ | ------ | ---- | ------ | ------------- |
+| field1 | string | 否   | {說明} | 最大 100 字元 |
+| field2 | string | 否   | {說明} | -             |
 
 **請求範例**
 
@@ -268,10 +275,9 @@ PUT /api/{resource-path}/{id}
 **回應範例**
 
 成功（200 OK）：
+
 ```json
 {
-  "isSuccess": true,
-  "code": 200,
   "data": {
     "id": "xxx-guid-xxx",
     "field1": "updated value",
@@ -279,7 +285,8 @@ PUT /api/{resource-path}/{id}
     "createdAt": "2025-01-01T00:00:00Z",
     "updatedAt": "2025-01-02T00:00:00Z"
   },
-  "errorMessage": null
+  "message": "Item updated successfully",
+  "code": 200
 }
 ```
 
@@ -301,24 +308,27 @@ curl -X PUT "http://localhost:5155/api/{resource-path}/xxx-guid-xxx" \
 刪除指定的 {實體}。
 
 **端點**
+
 ```
 DELETE /api/{resource-path}/{id}
 ```
 
 **路徑參數**
 
-| 參數 | 類型 | 必填 | 說明 |
-|------|------|------|------|
-| id | string | 是 | {實體} 的唯一識別碼 |
+| 參數 | 類型   | 必填 | 說明                |
+| ---- | ------ | ---- | ------------------- |
+| id   | string | 是   | {實體} 的唯一識別碼 |
 
 **回應範例**
 
 成功（204 No Content）：
+
 ```
 （無回應主體）
 ```
 
 找不到（404 Not Found）：
+
 ```json
 {
   "isSuccess": false,
@@ -341,41 +351,44 @@ curl -X DELETE "http://localhost:5155/api/{resource-path}/xxx-guid-xxx" \
 
 ### {EntityName}Dto
 
-| 欄位 | 類型 | 說明 |
-|------|------|------|
-| id | string | 唯一識別碼 |
-| field1 | string | {說明} |
-| field2 | string | {說明} |
+| 欄位      | 類型     | 說明           |
+| --------- | -------- | -------------- |
+| id        | string   | 唯一識別碼     |
+| field1    | string   | {說明}         |
+| field2    | string   | {說明}         |
 | createdAt | datetime | 建立時間 (UTC) |
 | updatedAt | datetime | 更新時間 (UTC) |
 
 ### Create{EntityName}Dto
 
-| 欄位 | 類型 | 必填 | 說明 | 驗證規則 |
-|------|------|------|------|----------|
-| field1 | string | 是 | {說明} | 不可為空，最大 100 字元 |
-| field2 | string | 否 | {說明} | 最大 500 字元 |
+| 欄位   | 類型   | 必填 | 說明   | 驗證規則                |
+| ------ | ------ | ---- | ------ | ----------------------- |
+| field1 | string | 是   | {說明} | 不可為空，最大 100 字元 |
+| field2 | string | 否   | {說明} | 最大 500 字元           |
 
 ### Update{EntityName}Dto
 
-| 欄位 | 類型 | 必填 | 說明 | 驗證規則 |
-|------|------|------|------|----------|
-| field1 | string | 否 | {說明} | 提供時最大 100 字元 |
-| field2 | string | 否 | {說明} | 提供時最大 500 字元 |
+| 欄位   | 類型   | 必填 | 說明   | 驗證規則            |
+| ------ | ------ | ---- | ------ | ------------------- |
+| field1 | string | 否   | {說明} | 提供時最大 100 字元 |
+| field2 | string | 否   | {說明} | 提供時最大 500 字元 |
 
 ---
 
 ## 驗證規則
 
 ### 建立時驗證
+
 - `field1`：必填，最大 100 字元
 - `field2`：選填，最大 500 字元
 
 ### 更新時驗證
+
 - 所有欄位皆為選填
 - 提供的欄位必須符合長度限制
 
 ### 業務規則
+
 - {列出業務規則}
 - {例如：名稱不可重複}
 
@@ -385,27 +398,30 @@ curl -X DELETE "http://localhost:5155/api/{resource-path}/xxx-guid-xxx" \
 
 ### 標準錯誤回應
 
-所有錯誤回應遵循 `OperationResult<T>` 格式：
+所有錯誤回應遵循 ProblemDetails 格式：
 
 ```json
 {
-  "isSuccess": false,
-  "code": {HTTP狀態碼},
-  "data": null,
-  "errorMessage": "{錯誤訊息}"
+  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+  "title": "Error Title",
+  "status": 400,
+  "detail": "{錯誤訊息}",
+  "errors": {
+    "FieldName": ["錯誤訊息1", "錯誤訊息2"]
+  }
 }
 ```
 
 ### 常見錯誤碼
 
-| HTTP 狀態碼 | 說明 | 可能原因 |
-|-------------|------|----------|
-| 400 | Bad Request | 請求格式錯誤或驗證失敗 |
-| 401 | Unauthorized | 未提供或無效的驗證憑證 |
-| 403 | Forbidden | 無權限執行此操作 |
-| 404 | Not Found | 找不到指定的資源 |
-| 409 | Conflict | 資源衝突（如名稱重複） |
-| 500 | Internal Server Error | 伺服器內部錯誤 |
+| HTTP 狀態碼 | 說明                  | 可能原因               |
+| ----------- | --------------------- | ---------------------- |
+| 400         | Bad Request           | 請求格式錯誤或驗證失敗 |
+| 401         | Unauthorized          | 未提供或無效的驗證憑證 |
+| 403         | Forbidden             | 無權限執行此操作       |
+| 404         | Not Found             | 找不到指定的資源       |
+| 409         | Conflict              | 資源衝突（如名稱重複） |
+| 500         | Internal Server Error | 伺服器內部錯誤         |
 
 ### 驗證錯誤回應
 
@@ -498,10 +514,11 @@ curl -X PUT "http://localhost:5155/api/{resource-path}/xxx-guid-xxx" \
 
 ## 版本紀錄
 
-| 版本 | 日期 | 說明 |
-|------|------|------|
-| 1.0 | {日期} | 初始版本 |
-```
+| 版本 | 日期   | 說明     |
+| ---- | ------ | -------- |
+| 1.0  | {日期} | 初始版本 |
+
+````
 
 ### 步驟 3：文件檢查清單
 
@@ -527,20 +544,23 @@ curl -X PUT "http://localhost:5155/api/{resource-path}/xxx-guid-xxx" \
 dotnet run --project Dotnet10AISamples.Api
 
 # 在另一個終端測試 cURL 範例
-```
+````
 
 ## 文件慣例
 
 ### 檔案命名
+
 - 檔案位置：`docs/api/{feature-name}.md`
 - 命名規則：使用 kebab-case（例如：`user-management.md`）
 
 ### 語言
+
 - 文件內容使用**繁體中文**
 - 程式碼、API 路徑、欄位名稱保持英文
 - 錯誤訊息可使用中英文混合
 
 ### 格式規範
+
 - 使用 Markdown 表格呈現結構化資訊
 - JSON 範例使用程式碼區塊並標註語言
 - cURL 範例包含完整的 headers

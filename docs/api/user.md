@@ -23,20 +23,24 @@ User API 提供完整的 CRUD 操作，包含建立、讀取、更新、刪除�
 
 ```json
 {
-  "items": [
-    {
-      "id": "12345678-1234-1234-1234-123456789012",
-      "username": "johndoe",
-      "email": "john@example.com",
-      "isActive": true,
-      "createdAt": "2024-01-01T00:00:00Z",
-      "updatedAt": "2024-01-01T00:00:00Z"
-    }
-  ],
-  "page": 1,
-  "pageSize": 10,
-  "totalCount": 100,
-  "totalPages": 10
+  "data": {
+    "items": [
+      {
+        "id": "12345678-1234-1234-1234-123456789012",
+        "username": "johndoe",
+        "email": "john@example.com",
+        "isActive": true,
+        "createdAt": "2024-01-01T00:00:00Z",
+        "updatedAt": "2024-01-01T00:00:00Z"
+      }
+    ],
+    "totalCount": 100,
+    "pageNumber": 1,
+    "pageSize": 10,
+    "totalPages": 10
+  },
+  "message": "Users retrieved successfully",
+  "code": 200
 }
 ```
 
@@ -54,12 +58,16 @@ User API 提供完整的 CRUD 操作，包含建立、讀取、更新、刪除�
 
 ```json
 {
-  "id": "12345678-1234-1234-1234-123456789012",
-  "username": "johndoe",
-  "email": "john@example.com",
-  "isActive": true,
-  "createdAt": "2024-01-01T00:00:00Z",
-  "updatedAt": "2024-01-01T00:00:00Z"
+  "data": {
+    "id": "12345678-1234-1234-1234-123456789012",
+    "username": "johndoe",
+    "email": "john@example.com",
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00Z",
+    "updatedAt": "2024-01-01T00:00:00Z"
+  },
+  "message": "User retrieved successfully",
+  "code": 200
 }
 ```
 
@@ -84,12 +92,16 @@ User API 提供完整的 CRUD 操作，包含建立、讀取、更新、刪除�
 
 ```json
 {
-  "id": "12345678-1234-1234-1234-123456789012",
-  "username": "johndoe",
-  "email": "john@example.com",
-  "isActive": true,
-  "createdAt": "2024-01-01T00:00:00Z",
-  "updatedAt": "2024-01-01T00:00:00Z"
+  "data": {
+    "id": "12345678-1234-1234-1234-123456789012",
+    "username": "johndoe",
+    "email": "john@example.com",
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00Z",
+    "updatedAt": "2024-01-01T00:00:00Z"
+  },
+  "message": "User created successfully",
+  "code": 201
 }
 ```
 
@@ -108,6 +120,21 @@ User API 提供完整的 CRUD 操作，包含建立、讀取、更新、刪除�
 ```
 
 **回應：** 200 OK
+
+```json
+{
+  "data": {
+    "id": "12345678-1234-1234-1234-123456789012",
+    "username": "johndoe",
+    "email": "john@example.com",
+    "isActive": false,
+    "createdAt": "2024-01-01T00:00:00Z",
+    "updatedAt": "2024-01-02T00:00:00Z"
+  },
+  "message": "User updated successfully",
+  "code": 200
+}
+```
 
 ### 5. DELETE /users/{id}
 
@@ -178,7 +205,7 @@ User API 提供完整的 CRUD 操作，包含建立、讀取、更新、刪除�
 
 ```json
 {
-  "data": [
+  "items": [
     {
       "id": "550e8400-e29b-41d4-a716-446655440000",
       "username": "john_doe",
@@ -188,14 +215,19 @@ User API 提供完整的 CRUD 操作，包含建立、讀取、更新、刪除�
       "updatedAt": "2024-01-15T10:30:00Z"
     }
   ],
-  "page": 1,
+  "pageNumber": 1,
   "pageSize": 10,
   "totalCount": 1,
-  "totalPages": 1,
-  "hasNextPage": false,
-  "hasPreviousPage": false
+  "totalPages": 1
 }
 ```
+
+"totalPages": 1,
+"hasNextPage": false,
+"hasPreviousPage": false
+}
+
+````
 
 ### 端點詳細說明
 
@@ -220,7 +252,7 @@ User API 提供完整的 CRUD 操作，包含建立、讀取、更新、刪除�
 ```bash
 curl -X GET "https://localhost:5001/api/users?page=1&pageSize=10&isActive=true&search=john" \
   -H "accept: application/json"
-```
+````
 
 #### 2. 取得單一使用者
 

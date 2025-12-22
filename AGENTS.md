@@ -5,7 +5,7 @@
 - `Dotnet10AISamples.Api/Program.cs`: API startup, routing, OpenAPI, and exception handler wiring.
 - `Dotnet10AISamples.Api/Controllers/`: API endpoints (e.g., `WeatherForecastController.cs`).
 - `Dotnet10AISamples.Api/Middlewares/`: `ValidationExceptionHandler` and `GlobalExceptionHandler` for ProblemDetails responses.
-- `Dotnet10AISamples.Api/Common/`: shared helpers like `OperationResult<T>`.
+- `Dotnet10AISamples.Api/Common/`: shared helpers like `OperationResult<T>` (services) and `ApiResponse<T>` (controllers).
 - `Dotnet10AISamples.Api/Extensions/`: service wiring helpers.
 - `appsettings*.json`: local configuration; avoid committing secrets.
 
@@ -22,7 +22,7 @@
 - C# 10+ with implicit usings enabled; nullable currently disabled in the project file.
 - When nullable is disabled, avoid using nullable reference type annotations (e.g., use `User` instead of `User?`).
 - Prefer expression-bodied members and concise object initialization when readable.
-- Controllers inherit from `ControllerBase` and return `OperationResult<T>` for consistent API envelopes.
+- Controllers inherit from `ControllerBase` and return `ApiResponse<T>` for consistent API envelopes.
 - Error handling should integrate with the registered `ProblemDetails` pipeline; use `ValidationException` for validation failures.
 - For service layer failures, controllers should return `Problem(detail: result.ErrorMessage, statusCode: result.Code)`.
 - PascalCase for classes/methods, camelCase for locals/parameters, ALL_CAPS for constants.

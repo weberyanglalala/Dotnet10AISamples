@@ -9,7 +9,7 @@
 - 此專案目前沒有使用者管理功能，需要新增基本的 User 實體
 - 使用 SQL Server 作為資料庫提供者，與 .NET 10 相容
 - 遵循專案的架構模式：Controller -> Service -> Repository -> DbContext
-- 使用 OperationResult<T> 作為統一的 API 回應格式
+- 使用 OperationResult<T> 作為服務層統一回應格式，ApiResponse<T> 作為 API 回應格式
 
 ## 資料庫結構
 

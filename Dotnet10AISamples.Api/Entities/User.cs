@@ -36,4 +36,7 @@ public class User
     /// 使用者最後更新的日期和時間（UTC）
     /// </summary>
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
+    // Navigation properties
+    public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
 }

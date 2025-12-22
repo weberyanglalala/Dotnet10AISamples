@@ -2,7 +2,7 @@
 
 ## 概述
 
-`OperationResult<T>` 是一個泛型類別，用於封裝 API 操作的結果。它提供了一致的回應格式，包含成功或失敗的狀態、資料、錯誤訊息和狀態碼。
+`OperationResult<T>` 是一個泛型類別，用於封裝服務層操作的結果。它提供了一致的回應格式，包含成功或失敗的狀態、資料、錯誤訊息和狀態碼。
 
 ## 類別結構
 
@@ -35,92 +35,76 @@ public class OperationResult<T>
 ### 成功回應
 
 ```csharp
-// 在控制器中
-[HttpGet]
-public OperationResult<WeatherForecast> GetWeather()
+// 在服務層中
+public async Task<OperationResult<User>> CreateUserAsync(CreateUserDto dto)
 {
-    var forecast = new WeatherForecast
-    {
-        Date = DateTime.Now,
-        TemperatureC = 25,
-        Summary = "Sunny"
-    };
+    // 業務邏輯...
+    var user = new User { /* ... */ };
+    await _repository.CreateUserAsync(user);
 
-    return OperationResult<WeatherForecast>.Success(forecast);
+    return OperationResult<User>.Success(user, 201);
 }
 ```
 
 ### 失敗回應
 
 ```csharp
-[HttpGet]
-public IActionResult GetWeather()
+public async Task<OperationResult<User>> GetUserByIdAsync(string id)
 {
-    // 模擬錯誤情況
-    if (someCondition)
+    var user = await _repository.GetUserByIdAsync(id);
+    if (user == null)
     {
-        return Problem(
-            detail: "Unable to retrieve weather data.",
-            statusCode: 500);
+        return OperationResult<User>.Failure("User not found", 404);
     }
 
-    // 正常處理...
+    return OperationResult<User>.Success(user);
 }
-```
-
-### 自訂狀態碼
-
-```csharp
-// 成功時自訂狀態碼
-return OperationResult<User>.Success(user, 201); // 創建成功
-
-// 失敗時使用 Problem() 方法
-return Problem(
-    detail: "User not found.",
-    statusCode: 404);
 ```
 
 ## 在專案中的應用
 
-在 `Dotnet10AISamples.Api` 專案中，所有控制器都應繼承 `ControllerBase` 並回傳 `OperationResult<T>` 以確保一致的 API 回應格式。
+在 `Dotnet10AISamples.Api` 專案中，服務層方法應回傳 `OperationResult<T>` 以確保一致的服務回應格式。
 
-錯誤處理應整合到已註冊的 `ProblemDetails` 管道中。對於驗證失敗，請使用 `ValidationException`。
+控制器會檢查 `OperationResult.IsSuccess`，成功時將資料包裝成 `ApiResponse<T>` 回傳，失敗時使用 `Problem()` 方法。
 
-### 範例控制器
+### 範例服務
 
 ```csharp
-[ApiController]
-[Route("[controller]")]
-public class WeatherForecastController : ControllerBase
+public class UserService : IUserService
 {
-    [HttpGet]
-    public IActionResult Get()
+    public async Task<OperationResult<PaginatedResult<UserDto>>> GetPaginatedUsersAsync(UserQueryParameters parameters)
     {
-        var result = GetWeatherData(); // 假設這回傳 OperationResult
-
-        if (!result.IsSuccess)
+        try
         {
-            return Problem(
-                detail: result.ErrorMessage,
-                statusCode: result.Code);
-        }
+            var (items, totalCount) = await _userRepository.GetPaginatedUsersAsync(parameters);
+            var result = new PaginatedResult<UserDto>
+            {
+                Items = items.Select(u => u.ToDto()),
+                PageNumber = parameters.Page,
+                PageSize = parameters.PageSize,
+                TotalCount = totalCount
+            };
 
-        return Ok(result.Data);
+            return OperationResult<PaginatedResult<UserDto>>.Success(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "取得使用者列表時發生錯誤");
+            return OperationResult<PaginatedResult<UserDto>>.Failure("取得使用者列表失敗", 500);
+        }
     }
 }
 ```
 
 ## 最佳實踐
 
-1. 總是在控制器方法中檢查 `OperationResult.IsSuccess`
-2. 成功時回傳適當的 `Ok()` 或 `CreatedAtAction()` 回應
-3. 失敗時使用 `Problem()` 方法回傳標準的 ProblemDetails 回應
-4. 使用適當的 HTTP 狀態碼
-5. 提供有意義的錯誤訊息
-6. 對於驗證錯誤，使用專門的驗證異常處理器
+1. 總是在服務層方法中回傳 `OperationResult<T>`
+2. 使用適當的 HTTP 狀態碼
+3. 提供有意義的錯誤訊息
+4. 在控制器中檢查 `IsSuccess` 並適當處理
 
 ## 相關檔案
 
 - `Dotnet10AISamples.Api/Common/OperationResult.cs`: OperationResult 類別定義
-- `Dotnet10AISamples.Api/Middlewares/`: 異常處理中介軟體
-- `Dotnet10AISamples.Api/Controllers/`: 控制器範例
+- `Dotnet10AISamples.Api/Services/`: 服務層範例
+- `Dotnet10AISamples.Api/Controllers/`: 控制器如何使用 OperationResult

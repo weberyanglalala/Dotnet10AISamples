@@ -21,7 +21,6 @@ public class CreateUserDtoValidator : AbstractValidator<CreateUserDto>
             .MinimumLength(8).WithMessage("密碼長度至少 8 字元")
             .Matches(@"[a-z]").WithMessage("密碼必須包含小寫字母")
             .Matches(@"[A-Z]").WithMessage("密碼必須包含大寫字母")
-            .Matches(@"[0-9]").WithMessage("密碼必須包含數字")
-            .Matches(@"[\W_]").WithMessage("密碼必須包含特殊字元");
+            .Matches(@"[0-9]").WithMessage("密碼必須包含數字");
     }
 }

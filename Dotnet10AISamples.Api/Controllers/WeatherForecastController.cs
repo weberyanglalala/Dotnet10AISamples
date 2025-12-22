@@ -13,7 +13,7 @@ public class WeatherForecastController : ControllerBase
     ];
 
     [HttpGet(Name = "GetWeatherForecast")]
-    public OperationResult<IEnumerable<WeatherForecast>> Get()
+    public IActionResult Get()
     {
         var forecasts = Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
@@ -23,6 +23,6 @@ public class WeatherForecastController : ControllerBase
             })
             .ToArray();
 
-        return OperationResult<IEnumerable<WeatherForecast>>.Success(forecasts);
+        return Ok(new ApiResponse<IEnumerable<WeatherForecast>> { Data = forecasts, Message = "Weather forecast retrieved successfully", Code = 200 });
     }
 }

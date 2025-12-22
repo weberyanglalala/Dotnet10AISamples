@@ -1,0 +1,158 @@
+using Dotnet10AISamples.Api.Common;
+using Dotnet10AISamples.Api.Data;
+using Dotnet10AISamples.Api.DTOs;
+using Dotnet10AISamples.Api.Entities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+
+namespace Dotnet10AISamples.Api.Services;
+
+/// <summary>
+/// 認證服務實作
+/// </summary>
+public class AuthService : IAuthService
+{
+    private readonly ApplicationDbContext _context;
+    private readonly JwtSettings _jwtSettings;
+    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IRoleService _roleService;
+
+    public AuthService(
+        ApplicationDbContext context,
+        IOptions<JwtSettings> jwtSettings,
+        IHttpContextAccessor httpContextAccessor,
+        IRoleService roleService)
+    {
+        _context = context;
+        _jwtSettings = jwtSettings.Value;
+        _httpContextAccessor = httpContextAccessor;
+        _roleService = roleService;
+    }
+
+    public async Task<OperationResult<AuthResponseDto>> AuthenticateAsync(string email, string password)
+    {
+        try
+        {
+            // 尋找使用者
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u => u.Email == email && u.IsActive);
+
+            if (user == null)
+            {
+                return OperationResult<AuthResponseDto>.Failure("無效的憑證", 401);
+            }
+
+            // 驗證密碼
+            if (!BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
+            {
+                return OperationResult<AuthResponseDto>.Failure("無效的憑證", 401);
+            }
+
+            // 取得使用者角色
+            var rolesResult = await _roleService.GetUserRolesAsync(user.Id);
+            if (!rolesResult.IsSuccess)
+            {
+                return OperationResult<AuthResponseDto>.Failure("取得使用者角色失敗", 500);
+            }
+
+            // 產生 JWT token
+            var token = GenerateJwtToken(user);
+
+            // 建立回應
+            var userInfo = new UserInfoDto
+            {
+                Id = user.Id,
+                Email = user.Email,
+                Roles = rolesResult.Data.Select(r => new RoleDto
+                {
+                    Id = r.Id,
+                    Name = r.Name,
+                    Description = r.Description
+                }).ToList()
+            };
+
+            var response = new AuthResponseDto
+            {
+                Token = token,
+                User = userInfo,
+                ExpiresAt = DateTime.UtcNow.AddHours(_jwtSettings.ExpiryInHours)
+            };
+
+            return OperationResult<AuthResponseDto>.Success(response);
+        }
+        catch (Exception ex)
+        {
+            return OperationResult<AuthResponseDto>.Failure($"認證失敗: {ex.Message}", 500);
+        }
+    }
+
+    public string GenerateJwtToken(User user)
+    {
+        var claims = new List<Claim>
+        {
+            new Claim(JwtRegisteredClaimNames.Sub, user.Id),
+            new Claim(JwtRegisteredClaimNames.Email, user.Email),
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new Claim(ClaimTypes.NameIdentifier, user.Id)
+        };
+
+        // 取得使用者角色並加入 claims
+        var rolesResult = _roleService.GetUserRolesAsync(user.Id).GetAwaiter().GetResult();
+        if (rolesResult.IsSuccess)
+        {
+            foreach (var role in rolesResult.Data)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role.Name));
+            }
+        }
+
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+        var token = new JwtSecurityToken(
+            issuer: _jwtSettings.Issuer,
+            audience: _jwtSettings.Audience,
+            claims: claims,
+            expires: DateTime.UtcNow.AddHours(_jwtSettings.ExpiryInHours),
+            signingCredentials: creds
+        );
+
+        return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    public async Task<OperationResult<User>> GetCurrentUserAsync()
+    {
+        try
+        {
+            var httpContext = _httpContextAccessor.HttpContext;
+            if (httpContext?.User?.Identity?.IsAuthenticated != true)
+            {
+                return OperationResult<User>.Failure("使用者未認證", 401);
+            }
+
+            var userId = httpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+            {
+                return OperationResult<User>.Failure("無效的認證資訊", 401);
+            }
+
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u => u.Id == userId && u.IsActive);
+
+            if (user == null)
+            {
+                return OperationResult<User>.Failure("使用者不存在", 404);
+            }
+
+            return OperationResult<User>.Success(user);
+        }
+        catch (Exception ex)
+        {
+            return OperationResult<User>.Failure($"取得目前使用者失敗: {ex.Message}", 500);
+        }
+    }
+}
