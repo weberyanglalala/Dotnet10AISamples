@@ -5,7 +5,7 @@ namespace Dotnet10AISamples.Api.Repositories;
 
 public interface IUserRepository
 {
-    Task<(IEnumerable<User> Items, int TotalCount)> GetAllUsersAsync(UserQueryParameters parameters);
+    Task<(IEnumerable<User> Items, int TotalCount)> GetPaginatedUsersAsync(UserQueryParameters parameters);
     Task<User> GetUserByIdAsync(string id);
     Task<User> GetUserByUsernameAsync(string username);
     Task<User> GetUserByEmailAsync(string email);

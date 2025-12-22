@@ -16,11 +16,11 @@ public class UserService : IUserService
         _logger = logger;
     }
 
-    public async Task<OperationResult<PaginatedResult<UserDto>>> GetAllUsersAsync(UserQueryParameters parameters)
+    public async Task<OperationResult<PaginatedResult<UserDto>>> GetPaginatedUsersAsync(UserQueryParameters parameters)
     {
         try
         {
-            var (items, totalCount) = await _userRepository.GetAllUsersAsync(parameters);
+            var (items, totalCount) = await _userRepository.GetPaginatedUsersAsync(parameters);
 
             var result = new PaginatedResult<UserDto>
             {

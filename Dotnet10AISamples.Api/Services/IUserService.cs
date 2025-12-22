@@ -5,7 +5,7 @@ namespace Dotnet10AISamples.Api.Services;
 
 public interface IUserService
 {
-    Task<OperationResult<PaginatedResult<UserDto>>> GetAllUsersAsync(UserQueryParameters parameters);
+    Task<OperationResult<PaginatedResult<UserDto>>> GetPaginatedUsersAsync(UserQueryParameters parameters);
     Task<OperationResult<UserDto>> GetUserByIdAsync(string id);
     Task<OperationResult<UserDto>> CreateUserAsync(CreateUserDto dto);
     Task<OperationResult<UserDto>> UpdateUserAsync(string id, UpdateUserDto dto);

@@ -37,7 +37,7 @@ public class UsersController : ControllerBase
             Search = search
         };
 
-        var result = await _userService.GetAllUsersAsync(parameters);
+        var result = await _userService.GetPaginatedUsersAsync(parameters);
 
         if (!result.IsSuccess)
         {
