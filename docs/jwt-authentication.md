@@ -213,6 +213,7 @@
   - [x] `AuthenticateAsync(string email, string password)` - 驗證使用者並產生 JWT
   - [x] `GenerateJwtToken(User user)` - 產生 JWT token（包含角色宣告）
   - [x] `GetCurrentUserAsync()` - 從 JWT 取得目前使用者
+  - [x] 使用 `IUserRepository` 進行使用者資料存取
   - [x] 密碼雜湊處理（使用 BCrypt 或 ASP.NET Core Identity）
 - [x] 建立 `IRoleRepository` 介面 - 角色資料存取層
 - [x] 實作 `RoleRepository`，包含資料存取方法

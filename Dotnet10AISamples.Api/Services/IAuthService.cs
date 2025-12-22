@@ -21,8 +21,9 @@ public interface IAuthService
     /// 產生 JWT token
     /// </summary>
     /// <param name="user">使用者實體</param>
+    /// <param name="roles">使用者角色列表</param>
     /// <returns>JWT token 字串</returns>
-    string GenerateJwtToken(User user);
+    string GenerateJwtToken(User user, List<Role> roles = null);
 
     /// <summary>
     /// 取得目前登入使用者

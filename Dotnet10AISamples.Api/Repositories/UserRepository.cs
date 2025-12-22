@@ -89,6 +89,18 @@ public class UserRepository : IUserRepository
         }
     }
 
+    public async Task<User> GetActiveUserByIdAsync(string id)
+    {
+        return await _context.Users
+            .FirstOrDefaultAsync(u => u.Id == id && u.IsActive);
+    }
+
+    public async Task<User> GetActiveUserByEmailAsync(string email)
+    {
+        return await _context.Users
+            .FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower() && u.IsActive);
+    }
+
     public async Task<bool> UserExistsAsync(string id)
     {
         return await _context.Users.AnyAsync(u => u.Id == id);

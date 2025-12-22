@@ -10,6 +10,8 @@ using System.Text;
 using Dotnet10AISamples.Api.Controllers.Auth.Dtos;
 using Dotnet10AISamples.Api.Controllers.Roles.Dtos;
 using Dotnet10AISamples.Api.Controllers.Users.Dtos;
+using Dotnet10AISamples.Api.Repositories;
+using Dotnet10AISamples.Api.Services;
 
 namespace Dotnet10AISamples.Api.Services;
 
@@ -21,18 +23,21 @@ public class AuthService : IAuthService
     private readonly ApplicationDbContext _context;
     private readonly JwtSettings _jwtSettings;
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IRoleService _roleService;
+    private readonly IRoleRepository _roleRepository;
+    private readonly IUserRepository _userRepository;
 
     public AuthService(
         ApplicationDbContext context,
         IOptions<JwtSettings> jwtSettings,
         IHttpContextAccessor httpContextAccessor,
-        IRoleService roleService)
+        IRoleRepository roleRepository,
+        IUserRepository userRepository)
     {
         _context = context;
         _jwtSettings = jwtSettings.Value;
         _httpContextAccessor = httpContextAccessor;
-        _roleService = roleService;
+        _roleRepository = roleRepository;
+        _userRepository = userRepository;
     }
 
     public async Task<OperationResult<AuthResponseDto>> AuthenticateAsync(string email, string password)
@@ -40,8 +45,7 @@ public class AuthService : IAuthService
         try
         {
             // 尋找使用者
-            var user = await _context.Users
-                .FirstOrDefaultAsync(u => u.Email == email && u.IsActive);
+            var user = await _userRepository.GetActiveUserByEmailAsync(email);
 
             if (user == null)
             {
@@ -55,21 +59,17 @@ public class AuthService : IAuthService
             }
 
             // 取得使用者角色
-            var rolesResult = await _roleService.GetUserRolesAsync(user.Id);
-            if (!rolesResult.IsSuccess)
-            {
-                return OperationResult<AuthResponseDto>.Failure("取得使用者角色失敗", 500);
-            }
+            var roles = await _roleRepository.GetUserRolesAsync(user.Id);
 
             // 產生 JWT token
-            var token = GenerateJwtToken(user);
+            var token = GenerateJwtToken(user, roles);
 
             // 建立回應
             var userInfo = new UserInfoDto
             {
                 Id = user.Id,
                 Email = user.Email,
-                Roles = rolesResult.Data.Select(r => new RoleDto
+                Roles = roles.Select(r => new RoleDto
                 {
                     Id = r.Id,
                     Name = r.Name,
@@ -92,7 +92,7 @@ public class AuthService : IAuthService
         }
     }
 
-    public string GenerateJwtToken(User user)
+    public string GenerateJwtToken(User user, List<Role> roles = null)
     {
         var claims = new List<Claim>
         {
@@ -103,10 +103,9 @@ public class AuthService : IAuthService
         };
 
         // 取得使用者角色並加入 claims
-        var rolesResult = _roleService.GetUserRolesAsync(user.Id).GetAwaiter().GetResult();
-        if (rolesResult.IsSuccess)
+        if (roles != null)
         {
-            foreach (var role in rolesResult.Data)
+            foreach (var role in roles)
             {
                 claims.Add(new Claim(ClaimTypes.Role, role.Name));
             }
@@ -142,8 +141,7 @@ public class AuthService : IAuthService
                 return OperationResult<User>.Failure("無效的認證資訊", 401);
             }
 
-            var user = await _context.Users
-                .FirstOrDefaultAsync(u => u.Id == userId && u.IsActive);
+            var user = await _userRepository.GetActiveUserByIdAsync(userId);
 
             if (user == null)
             {
