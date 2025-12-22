@@ -4,10 +4,27 @@
     build:
       context: .
       dockerfile: Dotnet10AISamples.Api/Dockerfile
+    depends_on:
+      - sql-server
 
   dotnet10agui.api:
     image: dotnet10agui.api
     build:
       context: .
       dockerfile: Dotnet10AGUI.Api/Dockerfile
+    depends_on:
+      - sql-server
 
+  sql-server:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    platform: linux/amd64
+    ports:
+      - "1433:1433"
+    restart: always
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "MyPass@word"
+      MSSQL_PID: "Developer"
+      MSSQL_USER: "SA"
+    volumes:
+      - ./db-data:/var/opt/mssql/data
