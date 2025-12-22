@@ -1,12 +1,12 @@
 using Dotnet10AISamples.Api.Common;
-using Dotnet10AISamples.Api.DTOs;
+using Dotnet10AISamples.Api.Controllers.Users.Dtos;
+using Dotnet10AISamples.Api.Mappings;
 using Dotnet10AISamples.Api.Services;
-using Dotnet10AISamples.Api.Validators;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Dotnet10AISamples.Api.Controllers;
+namespace Dotnet10AISamples.Api.Controllers.Users;
 
 [ApiController]
 [Route("api/[controller]")]

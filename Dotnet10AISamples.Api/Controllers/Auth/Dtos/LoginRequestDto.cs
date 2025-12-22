@@ -1,4 +1,4 @@
-namespace Dotnet10AISamples.Api.DTOs;
+namespace Dotnet10AISamples.Api.Controllers.Auth.Dtos;
 
 /// <summary>
 /// 登入請求 DTO

@@ -1,5 +1,6 @@
 using Dotnet10AISamples.Api.Common;
-using Dotnet10AISamples.Api.DTOs;
+using Dotnet10AISamples.Api.Controllers.Users.Dtos;
+using Dotnet10AISamples.Api.Mappings;
 
 namespace Dotnet10AISamples.Api.Services;
 

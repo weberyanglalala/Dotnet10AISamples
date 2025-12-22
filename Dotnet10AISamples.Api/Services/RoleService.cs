@@ -1,6 +1,5 @@
 using Dotnet10AISamples.Api.Common;
 using Dotnet10AISamples.Api.Data;
-using Dotnet10AISamples.Api.DTOs;
 using Dotnet10AISamples.Api.Entities;
 using Microsoft.EntityFrameworkCore;
 

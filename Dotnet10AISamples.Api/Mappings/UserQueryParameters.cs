@@ -1,4 +1,4 @@
-namespace Dotnet10AISamples.Api.DTOs;
+namespace Dotnet10AISamples.Api.Mappings;
 
 public class UserQueryParameters
 {

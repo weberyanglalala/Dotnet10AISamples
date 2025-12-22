@@ -1,4 +1,6 @@
-namespace Dotnet10AISamples.Api.DTOs;
+using Dotnet10AISamples.Api.Controllers.Users.Dtos;
+
+namespace Dotnet10AISamples.Api.Controllers.Auth.Dtos;
 
 /// <summary>
 /// 認證回應 DTO

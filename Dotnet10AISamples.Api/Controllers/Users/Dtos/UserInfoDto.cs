@@ -1,4 +1,6 @@
-namespace Dotnet10AISamples.Api.DTOs;
+using Dotnet10AISamples.Api.Controllers.Roles.Dtos;
+
+namespace Dotnet10AISamples.Api.Controllers.Users.Dtos;
 
 /// <summary>
 /// 使用者資訊 DTO（用於 /me 端點）

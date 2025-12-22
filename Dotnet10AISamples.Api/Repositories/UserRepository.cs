@@ -1,6 +1,7 @@
+using Dotnet10AISamples.Api.Controllers.Users.Dtos;
 using Dotnet10AISamples.Api.Data;
-using Dotnet10AISamples.Api.DTOs;
 using Dotnet10AISamples.Api.Entities;
+using Dotnet10AISamples.Api.Mappings;
 using Microsoft.EntityFrameworkCore;
 
 namespace Dotnet10AISamples.Api.Repositories;

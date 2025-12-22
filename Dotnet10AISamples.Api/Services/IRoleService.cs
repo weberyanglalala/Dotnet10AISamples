@@ -1,5 +1,4 @@
 using Dotnet10AISamples.Api.Common;
-using Dotnet10AISamples.Api.DTOs;
 using Dotnet10AISamples.Api.Entities;
 
 namespace Dotnet10AISamples.Api.Services;

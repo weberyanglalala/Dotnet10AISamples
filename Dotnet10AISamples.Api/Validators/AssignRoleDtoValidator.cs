@@ -1,4 +1,4 @@
-using Dotnet10AISamples.Api.DTOs;
+using Dotnet10AISamples.Api.Controllers.Roles.Dtos;
 using FluentValidation;
 
 namespace Dotnet10AISamples.Api.Validators;

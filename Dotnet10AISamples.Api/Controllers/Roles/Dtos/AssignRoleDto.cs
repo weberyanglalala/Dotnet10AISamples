@@ -1,4 +1,4 @@
-namespace Dotnet10AISamples.Api.DTOs;
+namespace Dotnet10AISamples.Api.Controllers.Roles.Dtos;
 
 /// <summary>
 /// 指派角色 DTO

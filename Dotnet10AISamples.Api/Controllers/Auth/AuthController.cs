@@ -1,11 +1,13 @@
 using Dotnet10AISamples.Api.Common;
-using Dotnet10AISamples.Api.DTOs;
+using Dotnet10AISamples.Api.Controllers.Auth.Dtos;
+using Dotnet10AISamples.Api.Controllers.Roles.Dtos;
+using Dotnet10AISamples.Api.Controllers.Users.Dtos;
 using Dotnet10AISamples.Api.Services;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Dotnet10AISamples.Api.Controllers;
+namespace Dotnet10AISamples.Api.Controllers.Auth;
 
 /// <summary>
 /// 認證控制器

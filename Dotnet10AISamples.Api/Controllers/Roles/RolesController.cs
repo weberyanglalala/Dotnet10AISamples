@@ -1,11 +1,11 @@
 using Dotnet10AISamples.Api.Common;
-using Dotnet10AISamples.Api.DTOs;
+using Dotnet10AISamples.Api.Controllers.Roles.Dtos;
 using Dotnet10AISamples.Api.Services;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Dotnet10AISamples.Api.Controllers;
+namespace Dotnet10AISamples.Api.Controllers.Roles;
 
 /// <summary>
 /// 角色管理控制器

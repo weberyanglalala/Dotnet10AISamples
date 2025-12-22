@@ -1,5 +1,5 @@
-using Dotnet10AISamples.Api.DTOs;
 using Dotnet10AISamples.Api.Entities;
+using Dotnet10AISamples.Api.Mappings;
 
 namespace Dotnet10AISamples.Api.Repositories;
 

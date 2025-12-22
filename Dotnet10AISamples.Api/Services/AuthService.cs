@@ -1,6 +1,5 @@
 using Dotnet10AISamples.Api.Common;
 using Dotnet10AISamples.Api.Data;
-using Dotnet10AISamples.Api.DTOs;
 using Dotnet10AISamples.Api.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -8,6 +7,9 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Dotnet10AISamples.Api.Controllers.Auth.Dtos;
+using Dotnet10AISamples.Api.Controllers.Roles.Dtos;
+using Dotnet10AISamples.Api.Controllers.Users.Dtos;
 
 namespace Dotnet10AISamples.Api.Services;
 
