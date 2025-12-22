@@ -1,12 +1,13 @@
 using Dotnet10AISamples.Api.Middlewares;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Dotnet10AISamples.Api.Extensions;
 
 public static class ApplicationErrorExtension
 {
-    public static WebApplicationBuilder AddErrorHandling(this WebApplicationBuilder builder)
+    public static IServiceCollection AddErrorHandling(this IServiceCollection services)
     {
-        builder.Services.AddProblemDetails(options =>
+        services.AddProblemDetails(options =>
         {
             options.CustomizeProblemDetails = context =>
             {
@@ -14,8 +15,8 @@ public static class ApplicationErrorExtension
             };
         });
 
-        builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
-        builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
-        return builder;
+        services.AddExceptionHandler<ValidationExceptionHandler>();
+        services.AddExceptionHandler<GlobalExceptionHandler>();
+        return services;
     }
 }
