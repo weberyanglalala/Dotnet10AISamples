@@ -24,3 +24,5 @@
 LICENSE
 README.md
 ./db-data
+entropy.bin
+**/entropy.bin
