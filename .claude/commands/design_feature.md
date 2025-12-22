@@ -5,6 +5,7 @@
 ## 目的
 
 此指令確保所有新功能都經過完整規劃，包含：
+
 - 詳細的設計文件
 - 分階段實作任務與未勾選的待辦事項
 - 清晰的資料庫結構與 API 規格
@@ -16,13 +17,15 @@
 
 在 `docs/` 目錄下建立新的 markdown 檔案，使用以下結構：
 
-```markdown
+````markdown
 # {功能名稱} 實作計畫
 
 ## 概述
+
 功能及其目的的簡要說明。
 
 ## 背景
+
 - 為什麼需要此功能的背景說明
 - 現有相關功能或實體
 - 任何命名衝突或注意事項
@@ -30,26 +33,31 @@
 ## 資料庫結構
 
 ### 資料表：`{table_name}`
-| 欄位        | 類型         | 約束條件                       | 說明                           |
-|-------------|--------------|--------------------------------|--------------------------------|
-| Id         | nvarchar(40)  | PRIMARY KEY, NOT NULL          | 前綴 GUID：`{Guid}`   |
-| ...         | ...          | ...                            | ...                            |
-| CreatedAt  | datetime2    | NOT NULL         | 建立時間戳記 (UTC)             |
-| UpdatedAt  | datetime2    | NOT NULL        | 最後更新時間戳記 (UTC)         |
+
+| 欄位      | 類型         | 約束條件              | 說明                   |
+| --------- | ------------ | --------------------- | ---------------------- |
+| Id        | nvarchar(40) | PRIMARY KEY, NOT NULL | `{Guid}`               |
+| ...       | ...          | ...                   | ...                    |
+| CreatedAt | datetime2    | NOT NULL              | 建立時間戳記 (UTC)     |
+| UpdatedAt | datetime2    | NOT NULL              | 最後更新時間戳記 (UTC) |
 
 ### 索引
+
 - 列出所有索引（唯一、非唯一、複合）
 
 ### 關聯
+
 - 與其他資料表的外鍵關係
 - 導航屬性
 
 ## API 端點
 
 ### 1. GET /{resource-path}
+
 **說明：** 列出所有 {實體}，支援分頁、篩選
 
 **查詢參數：**
+
 - `page`（選填，預設：1）：頁碼
 - `pageSize`（選填，預設：10）：每頁項目數
 - {新增自訂查詢參數}
@@ -57,6 +65,7 @@
 **授權：** {Admin/User/Public}
 
 **回應：** 200 OK
+
 ```json
 {
   "items": [...],
@@ -66,19 +75,24 @@
   "totalPages": 10
 }
 ```
+````
 
 ### 2. GET /{resource-path}/{id}
+
 **說明：** 根據 ID 取得單一 {實體}
 
 **參數：**
+
 - `id`：{實體} 的 ID
 
 **查詢參數：**
+
 - `fields`（選填）：欄位選擇
 
 **授權：** {Admin/User/Public}
 
 **回應：** 200 OK
+
 ```json
 {
   "id": "...",
@@ -87,11 +101,13 @@
 ```
 
 ### 3. POST /{resource-path}
+
 **說明：** 建立新的 {實體}
 
 **授權：** {Admin/User}
 
 **請求主體：**
+
 ```json
 {
   "field1": "value1",
@@ -102,11 +118,13 @@
 **回應：** 201 Created
 
 ### 4. PUT/PATCH /{resource-path}/{id}
+
 **說明：** 更新現有的 {實體}
 
 **授權：** {Admin/User}
 
 **請求主體：**
+
 ```json
 {
   "field1": "updated value"
@@ -116,6 +134,7 @@
 **回應：** 200 OK / 204 No Content
 
 ### 5. DELETE /{resource-path}/{id}（如適用）
+
 **說明：** 刪除 {實體}
 
 **授權：** {僅限 Admin}
@@ -125,6 +144,7 @@
 ## 實作任務
 
 ### 第一階段：實體與資料庫
+
 - [ ] 建立 `{EntityName}` 實體，包含屬性：{列出屬性}
 - [ ] 在 `ApplicationDbContext` 中新增 `DbSet<{EntityName}>`
 - [ ] 在 `OnModelCreating` 中設定實體的索引、資料表名稱和關聯
@@ -132,6 +152,7 @@
 - [ ] 執行遷移以建立/更新資料庫
 
 ### 第二階段：DTOs 與驗證
+
 - [ ] 建立 `{EntityName}Dto`（回應 DTO）
 - [ ] 建立 `Create{EntityName}Dto`（用於 POST 請求）
 - [ ] 建立 `Update{EntityName}Dto`（用於 PUT/PATCH 請求）
@@ -142,51 +163,56 @@
 - [ ] 使用 FluentValidation 規則建立 `Update{EntityName}DtoValidator`
 
 ### 第三階段：儲存庫層
+
 - [ ] 建立 `I{EntityName}Repository` 介面
 - [ ] 實作 `{EntityName}Repository`，包含以下方法：
-    - [ ] `GetAll{EntityName}Async()` - 支援分頁、篩選
-    - [ ] `Get{EntityName}ByIdAsync(string id)`
-    - [ ] `Create{EntityName}Async({EntityName})`
-    - [ ] `Update{EntityName}Async({EntityName})`
-    - [ ] `Delete{EntityName}Async(string id)`（如適用）
-    - [ ] `{EntityName}ExistsAsync(string id)`
-    - [ ] 依需要新增自訂查詢方法
-    - [ ] **對於需要原子性的複雜操作**（例如：刪除 + 新增）：
-        - [ ] 建立單一儲存庫方法來封裝整個操作
-        - [ ] 使用 `await using var transaction = await dbContext.Database.BeginTransactionAsync()` 處理交易
-        - [ ] 包含 `try-catch`，成功時呼叫 `CommitAsync()`，失敗時呼叫 `RollbackAsync()`
-        - [ ] 方法應拋出例外；服務層會捕捉並轉換為 `OperationResult`
+  - [ ] `GetAll{EntityName}Async()` - 支援分頁、篩選
+  - [ ] `Get{EntityName}ByIdAsync(string id)`
+  - [ ] `Create{EntityName}Async({EntityName})`
+  - [ ] `Update{EntityName}Async({EntityName})`
+  - [ ] `Delete{EntityName}Async(string id)`（如適用）
+  - [ ] `{EntityName}ExistsAsync(string id)`
+  - [ ] 依需要新增自訂查詢方法
+  - [ ] **對於需要原子性的複雜操作**（例如：刪除 + 新增）：
+    - [ ] 建立單一儲存庫方法來封裝整個操作
+    - [ ] 使用 `await using var transaction = await dbContext.Database.BeginTransactionAsync()` 處理交易
+    - [ ] 包含 `try-catch`，成功時呼叫 `CommitAsync()`，失敗時呼叫 `RollbackAsync()`
+    - [ ] 方法應拋出例外；服務層會捕捉並轉換為 `OperationResult`
 
 ### 第四階段：服務層
+
 - [ ] 建立 `I{EntityName}Service` 介面
 - [ ] 實作 `{EntityName}Service`，包含業務邏輯：
-    - [ ] 驗證業務規則（唯一性、約束）
-    - [ ] 處理 `OperationResult<T>` 回應
-    - [ ] 更新時更新 `UpdatedAt` 時間戳記
-    - [ ] 錯誤處理和日誌記錄
-    - [ ] 複雜業務邏輯（如有需要）
-    - [ ] **重要**：服務層絕不管理資料庫交易
-    - [ ] **絕不**在服務層呼叫 `BeginTransactionAsync()`、`CommitAsync()` 或 `RollbackAsync()`
-    - [ ] 協調儲存庫呼叫並將例外轉換為 `OperationResult<T>`
+  - [ ] 驗證業務規則（唯一性、約束）
+  - [ ] 處理 `OperationResult<T>` 回應
+  - [ ] 更新時更新 `UpdatedAt` 時間戳記
+  - [ ] 錯誤處理和日誌記錄
+  - [ ] 複雜業務邏輯（如有需要）
+  - [ ] **重要**：服務層絕不管理資料庫交易
+  - [ ] **絕不**在服務層呼叫 `BeginTransactionAsync()`、`CommitAsync()` 或 `RollbackAsync()`
+  - [ ] 協調儲存庫呼叫並將例外轉換為 `OperationResult<T>`
 
 ### 第五階段：控制器
+
 - [ ] 建立 `{EntityName}Controller`，包含以下端點：
-    - [ ] `GET /{resource-path}` - 列出所有，支援查詢
-    - [ ] `GET /{resource-path}/{id}` - 根據 ID 取得單一
-    - [ ] `POST /{resource-path}` - 建立新的
-    - [ ] `PUT/PATCH /{resource-path}/{id}` - 更新
-    - [ ] `DELETE /{resource-path}/{id}` - 刪除（如適用）
+  - [ ] `GET /{resource-path}` - 列出所有，支援查詢
+  - [ ] `GET /{resource-path}/{id}` - 根據 ID 取得單一
+  - [ ] `POST /{resource-path}` - 建立新的
+  - [ ] `PUT/PATCH /{resource-path}/{id}` - 更新
+  - [ ] `DELETE /{resource-path}/{id}` - 刪除（如適用）
 - [ ] 新增欄位選擇支援
 - [ ] 新增授權屬性
 - [ ] 新增 FluentValidation 整合
 
 ### 第六階段：服務註冊
+
 - [ ] 在 `DependencyInjection.cs` 中註冊 `I{EntityName}Repository` 和實作
 - [ ] 在 `DependencyInjection.cs` 中註冊 `I{EntityName}Service` 和實作
 - [ ] 為 {EntityName} 註冊排序對應提供者
 - [ ] 為依賴注入註冊驗證器
 
 ### 第七階段：文件
+
 - [ ] 在 `docs/{feature-path}/{feature-name}.md` 建立繁體中文 API 文件
 - [ ] 包含端點說明、範例、錯誤情況
 - [ ] 新增請求/回應範例
@@ -195,6 +221,7 @@
 - [ ] 包含驗證規則和業務規則文件
 
 ### 第八階段：測試（如有需要）
+
 - [ ] 為所有端點建立整合測試
 - [ ] 測試不同角色的授權
 - [ ] 測試驗證規則
@@ -203,6 +230,7 @@
 - [ ] 測試分頁和排序
 
 ### 第九階段：建置與驗證
+
 - [ ] 執行資料庫遷移
 - [ ] 成功建置專案（零錯誤）
 - [ ] 驗證所有元件已正確註冊
@@ -211,14 +239,17 @@
 ## 驗證規則
 
 ### Create{EntityName}Dto
+
 - `Field1`：{約束}
 - `Field2`：{約束}
 
 ### Update{EntityName}Dto
+
 - `Field1`：{提供時的約束}
 - `Field2`：{提供時的約束}
 
 ### 業務規則
+
 - 列出所有業務規則（唯一性、依賴性、狀態轉換）
 - 記錄任何級聯行為
 - 記錄角色存取控制以外的授權規則
@@ -226,12 +257,13 @@
 ## 問題/決策
 
 1. **問題 1：**
-    - 考慮的選項
-    - 決策：待定 / {決策}
+
+   - 考慮的選項
+   - 決策：待定 / {決策}
 
 2. **問題 2：**
-    - 考慮的選項
-    - 決策：待定 / {決策}
+   - 考慮的選項
+   - 決策：待定 / {決策}
 
 ## 實作狀態
 
@@ -240,6 +272,7 @@
 **實作日期**：{日期}
 
 ### 關鍵規格
+
 - **實體名稱**：`{EntityName}`
 - **資料表名稱**：`{table_name}`
 - **ID 前綴**：`{prefix}_`
@@ -247,16 +280,20 @@
 - **授權**：{角色}
 
 ### 建立/修改的檔案
+
 列出實作期間建立或修改的所有檔案。
 
 ### 建置狀態
+
 記錄建置結果和已解決的任何問題。
 
 ### 後續步驟
+
 - 測試建議
 - 部署注意事項
 - 未來增強功能
-```
+
+````
 
 ### 步驟 2：與使用者審查設計
 
@@ -356,7 +393,7 @@
 - 建立：201 Created 包含 Location 標頭
 - 更新：200 OK 或 204 No Content
 - 刪除：204 No Content
-- 錯誤：ProblemDetails 包含適當的狀態碼
+- 錯誤：**ProblemDetails** 使用 `Problem()` 方法，包含適當的狀態碼
 
 ## 範例：ImageModelType 設計文件
 
@@ -418,7 +455,7 @@ public async Task<(int deletedCount, List<Entity> createdEntities)> ComplexOpera
         throw new InvalidOperationException($"操作失敗：{ex.Message}", ex);
     }
 }
-```
+````
 
 **服務層（不處理交易）：**
 
@@ -455,6 +492,7 @@ public async Task<OperationResult<ResultDto>> PerformComplexOperation(string id)
 ### 規則
 
 ✅ **應該做：**
+
 - 在儲存庫層使用 `DbContext.Database.BeginTransactionAsync()` 處理交易
 - 將整個原子操作封裝在單一儲存庫方法中
 - 使用 `try-catch` 搭配 `CommitAsync()` 和 `RollbackAsync()`
@@ -462,6 +500,7 @@ public async Task<OperationResult<ResultDto>> PerformComplexOperation(string id)
 - 在服務中捕捉例外並轉換為 `OperationResult<T>`
 
 ❌ **不應該做：**
+
 - 在服務層呼叫 `BeginTransactionAsync()`
 - 從服務層直接存取 `DbContext`
 - 將原子操作分散到多個儲存庫方法而不使用交易
@@ -479,6 +518,7 @@ public async Task<OperationResult<ResultDto>> PerformComplexOperation(string id)
 7. **包含範例**：提供完整的請求/回應範例
 8. **考慮邊界情況**：清楚記錄驗證規則和業務規則
 9. **交易處理**：始終在儲存庫層處理交易，絕不在服務層
+10. **XML 文件註解**：為所有實體屬性新增 `///` XML 文件註解，說明欄位的用途和約束
 
 ## 良好設計文件的提示
 

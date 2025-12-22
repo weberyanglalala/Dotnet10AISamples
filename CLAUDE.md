@@ -30,12 +30,16 @@ This is a .NET 10 Minimal API project demonstrating modern ASP.NET Core patterns
 ### Key Patterns
 
 **Response Envelope:** All API responses use `OperationResult<T>` (in `Common/`) which provides:
+
 - `IsSuccess`, `Data`, `ErrorMessage`, `Code` properties
 - Factory methods: `OperationResult<T>.Success(data)` and `OperationResult<T>.Failure(message, code)`
 
 **Exception Handling Pipeline:** Two-tier exception handling registered via `builder.AddErrorHandling()`:
+
 1. `ValidationExceptionHandler` - catches FluentValidation exceptions, returns 400 with structured errors
 2. `GlobalExceptionHandler` - catches all unhandled exceptions, returns 500 with ProblemDetails
+
+**Error Response Pattern:** Controllers check `result.IsSuccess` and return `Problem(detail: result.ErrorMessage, statusCode: result.Code)` for failures.
 
 ### Project Structure
 

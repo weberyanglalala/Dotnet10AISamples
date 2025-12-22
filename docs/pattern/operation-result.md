@@ -12,14 +12,14 @@ public class OperationResult<T>
     public bool IsSuccess { get; }
     public T Data { get; }
     public string ErrorMessage { get; }
-    public string Code { get; }
+    public int Code { get; }
 
     // 私有建構函式
-    private OperationResult(bool isSuccess, T data, string errorMessage, string code);
+    private OperationResult(bool isSuccess, T data, string errorMessage, int code);
 
     // 靜態方法
-    public static OperationResult<T> Success(T data, string statusCode = "200");
-    public static OperationResult<T> Failure(string errorMessage = "Operation Failed.", string statusCode = "400");
+    public static OperationResult<T> Success(T data, int statusCode = 200);
+    public static OperationResult<T> Failure(string errorMessage = "Operation Failed.", int statusCode = 400);
 }
 ```
 
@@ -28,7 +28,7 @@ public class OperationResult<T>
 - `IsSuccess`: 布林值，表示操作是否成功。
 - `Data`: 泛型資料，成功時包含結果資料，失敗時為預設值。
 - `ErrorMessage`: 字串，失敗時包含錯誤訊息。
-- `Code`: 字串，HTTP 狀態碼或自訂狀態碼。
+- `Code`: 整數，HTTP 狀態碼或自訂狀態碼。
 
 ## 使用方法
 
@@ -54,12 +54,14 @@ public OperationResult<WeatherForecast> GetWeather()
 
 ```csharp
 [HttpGet]
-public OperationResult<WeatherForecast> GetWeather()
+public IActionResult GetWeather()
 {
     // 模擬錯誤情況
     if (someCondition)
     {
-        return OperationResult<WeatherForecast>.Failure("Unable to retrieve weather data.", "500");
+        return Problem(
+            detail: "Unable to retrieve weather data.",
+            statusCode: 500);
     }
 
     // 正常處理...
@@ -70,10 +72,12 @@ public OperationResult<WeatherForecast> GetWeather()
 
 ```csharp
 // 成功時自訂狀態碼
-return OperationResult<User>.Success(user, "201"); // 創建成功
+return OperationResult<User>.Success(user, 201); // 創建成功
 
-// 失敗時自訂狀態碼
-return OperationResult<User>.Failure("User not found.", "404");
+// 失敗時使用 Problem() 方法
+return Problem(
+    detail: "User not found.",
+    statusCode: 404);
 ```
 
 ## 在專案中的應用
@@ -90,25 +94,30 @@ return OperationResult<User>.Failure("User not found.", "404");
 public class WeatherForecastController : ControllerBase
 {
     [HttpGet]
-    public OperationResult<IEnumerable<WeatherForecast>> Get()
+    public IActionResult Get()
     {
-        var forecasts = new List<WeatherForecast>
-        {
-            new() { Date = DateTime.Now, TemperatureC = 20, Summary = "Cool" },
-            new() { Date = DateTime.Now.AddDays(1), TemperatureC = 25, Summary = "Warm" }
-        };
+        var result = GetWeatherData(); // 假設這回傳 OperationResult
 
-        return OperationResult<IEnumerable<WeatherForecast>>.Success(forecasts);
+        if (!result.IsSuccess)
+        {
+            return Problem(
+                detail: result.ErrorMessage,
+                statusCode: result.Code);
+        }
+
+        return Ok(result.Data);
     }
 }
 ```
 
 ## 最佳實踐
 
-1. 總是在控制器方法中回傳 `OperationResult<T>`。
-2. 使用適當的 HTTP 狀態碼。
-3. 提供有意義的錯誤訊息。
-4. 對於驗證錯誤，使用專門的驗證異常處理器。
+1. 總是在控制器方法中檢查 `OperationResult.IsSuccess`
+2. 成功時回傳適當的 `Ok()` 或 `CreatedAtAction()` 回應
+3. 失敗時使用 `Problem()` 方法回傳標準的 ProblemDetails 回應
+4. 使用適當的 HTTP 狀態碼
+5. 提供有意義的錯誤訊息
+6. 對於驗證錯誤，使用專門的驗證異常處理器
 
 ## 相關檔案
 
