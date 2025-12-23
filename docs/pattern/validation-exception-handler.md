@@ -1,8 +1,39 @@
 # ValidationExceptionHandler 使用指南
+
 - https://learn.microsoft.com/zh-tw/aspnet/core/fundamentals/error-handling?view=aspnetcore-10.0#iexceptionhandler
+
 ## 概述
 
 `ValidationExceptionHandler` 是一個專門處理驗證異常的中介軟體，實作了 `IExceptionHandler` 介面。它負責捕獲 `FluentValidation` 拋出的 `ValidationException`，並將驗證錯誤以標準化的 `ProblemDetails` 格式回傳。
+
+## 請求流程圖
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Client
+    participant Https as UseHttpsRedirection
+    participant ExceptionHandler as UseExceptionHandler
+    participant AuthN as UseAuthentication
+    participant AuthZ as UseAuthorization
+    participant MVC as Controller / FluentValidation
+    participant ValEx as ValidationExceptionHandler
+    participant GlobalEx as GlobalExceptionHandler
+
+    Client->>Https: HTTP Request
+    Https->>ExceptionHandler: next()
+    ExceptionHandler->>AuthN: next()
+    AuthN->>AuthZ: Authenticate & next()
+    AuthZ->>MVC: Authorize & next()
+
+    MVC-->>MVC: FluentValidation
+    MVC-->>ExceptionHandler: throw ValidationException
+
+    ExceptionHandler->>ValEx: TryHandleAsync(ValidationException)
+    ValEx-->>ExceptionHandler: handled = true (400)
+
+    ExceptionHandler-->>Client: 400 BadRequest + errors
+```
 
 ## 類別結構
 

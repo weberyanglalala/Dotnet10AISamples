@@ -1,10 +1,44 @@
 # GlobalExceptionHandler 使用指南
+
 - https://learn.microsoft.com/zh-tw/aspnet/core/fundamentals/error-handling?view=aspnetcore-10.0#iexceptionhandler
 - https://learn.microsoft.com/zh-tw/aspnet/core/fundamentals/error-handling?view=aspnetcore-10.0#problem-details
 - https://learn.microsoft.com/zh-tw/aspnet/core/fundamentals/error-handling?view=aspnetcore-10.0#problem-details
+
 ## 概述
 
 `GlobalExceptionHandler` 是一個全域異常處理中介軟體，實作了 `IExceptionHandler` 介面。它負責捕獲應用程式中未處理的異常，記錄錯誤日誌，並回傳標準化的 `ProblemDetails` 回應。
+
+## 請求流程圖
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Client
+    participant Https as UseHttpsRedirection
+    participant ExceptionHandler as UseExceptionHandler
+    participant AuthN as UseAuthentication
+    participant AuthZ as UseAuthorization
+    participant MVC as Controller / FluentValidation
+    participant ValEx as ValidationExceptionHandler
+    participant GlobalEx as GlobalExceptionHandler
+
+    Client->>Https: HTTP Request
+    Https->>ExceptionHandler: next()
+    ExceptionHandler->>AuthN: next()
+    AuthN->>AuthZ: Authenticate & next()
+    AuthZ->>MVC: Authorize & next()
+
+    MVC-->>MVC: Some operation
+    MVC-->>ExceptionHandler: throw SomeException (not ValidationException)
+
+    ExceptionHandler->>ValEx: TryHandleAsync(SomeException)
+    ValEx-->>ExceptionHandler: handled = false
+
+    ExceptionHandler->>GlobalEx: TryHandleAsync(SomeException)
+    GlobalEx-->>ExceptionHandler: handled = true (500)
+
+    ExceptionHandler-->>Client: 500 Internal Server Error
+```
 
 ## 類別結構
 
