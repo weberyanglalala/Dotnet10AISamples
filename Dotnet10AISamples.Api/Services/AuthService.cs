@@ -20,20 +20,17 @@ namespace Dotnet10AISamples.Api.Services;
 /// </summary>
 public class AuthService : IAuthService
 {
-    private readonly ApplicationDbContext _context;
     private readonly JwtSettings _jwtSettings;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IRoleRepository _roleRepository;
     private readonly IUserRepository _userRepository;
 
     public AuthService(
-        ApplicationDbContext context,
         IOptions<JwtSettings> jwtSettings,
         IHttpContextAccessor httpContextAccessor,
         IRoleRepository roleRepository,
         IUserRepository userRepository)
     {
-        _context = context;
         _jwtSettings = jwtSettings.Value;
         _httpContextAccessor = httpContextAccessor;
         _roleRepository = roleRepository;
